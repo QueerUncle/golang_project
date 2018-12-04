@@ -1,0 +1,121 @@
+<!--
+ -  2018/11/1  lize
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+</head>
+<body>
+  <p>我是d页面</p>
+  <a style="margin-right: 15px" href="/c">标签新增及列表页面</a>
+  <a href="/e">文章列表页</a>
+  <br/>
+  <br/>
+  <label for="">
+    <span>文章标题：</span>
+    <input class = "title" type="text"/>
+  </label>
+  <br/>
+  <br/>
+  <lebel>
+    <p>文章内容：</p>
+    <textarea class = "info" cols="100" rows="20" style="padding: 10px;"></textarea>
+  </lebel>
+  <button class = "btn">保存</button>
+</body>
+</html>
+<script>
+
+  var articleId = ''
+
+  function init (obj){
+
+    $(".title").val(obj.name);
+
+    $(".info").val(obj.content);
+
+    articleId = obj.articleid
+
+  }
+
+  window.onload = function(){
+
+    var labelId = window.localStorage.getItem("add_labelId")
+
+    var articleObj = JSON.parse(window.localStorage.getItem("articleObj"));
+
+    if(articleObj){
+
+      init(articleObj)
+
+    }
+
+    //新增或修改文章
+    $(".btn").on("click",function(){
+
+      var obj = {
+
+        labelId:labelId,
+
+        articleid:'',
+
+        name:$(".title").val(),
+
+        content:$(".info").val()
+
+      }
+
+      if(articleObj){
+
+        obj.articleid = articleObj.articleid;
+
+        obj.labelId = articleObj.labelid;
+
+      }
+
+      console.log(obj)
+
+      if(obj.name!=='' && obj.labelId!=='' && obj.content!==''){
+
+        $.ajax({
+
+          type: "post",
+
+          url: "http://127.0.0.1:8088/addAarticleOfLabel",
+
+          data:obj,
+
+          success: function(data){
+
+            console.log(data,'我是返回数据')
+
+            if(data.data){
+
+              $(".title").val("");
+
+              $(".info").val("");
+
+              window.location.href = "/e"
+
+            }
+
+          },
+
+          error:function(err){
+
+            console.log(err)
+
+          }
+
+        });
+
+      }
+
+    })
+
+  }
+</script>
+

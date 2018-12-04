@@ -1,0 +1,252 @@
+<!--
+ -  2018/11/2  lize
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <link rel="stylesheet" href="http://hanlei.online/Onlineaddress/layui/css/layui.css"  media="all">
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="http://hanlei.online/Onlineaddress/layui/layui.js" charset="utf-8"></script>
+
+  <style>
+    html,body{
+      margin: 0;
+      padding: 0;
+    }
+    ul{
+      /*border: 1px solid gray;*/
+      overflow: hidden;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    ul li{
+      list-style: none;
+      float: left;
+      border: 1px solid gray;
+      height: 40px;
+      line-height: 40px;
+      border-left:none ;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <p><span class = "labelName" style = "margin-left: 10px;font-size: 28px;"></span>标签内的文章</p>
+  <a class = "listBtn" style="margin-right: 15px" href="/c">文章列表页</a>
+  <a class = "operationBtn" href="/d">文章新增、修改、查看页</a>
+  <br/>
+  <br/>
+  <ul>
+    <li style="width: 10%;border-left:1px solid gray ">名称</li>
+    <li style="width: 60%">内容</li>
+    <li style="width: 12%">时间</li>
+    <li style="width: 15%">操作</li>
+  </ul>
+  <div class = "odiv"></div>
+  <div id = "demo0"></div>
+</body>
+</html>
+<script>
+
+  var articleData = ''
+
+
+  //页面渲染函数
+  function getArticle(objs){
+
+    var sunData = objs
+
+    layui.use(['laypage', 'layer'], function() {
+
+      var laypage = layui.laypage
+
+        , layer = layui.layer;
+
+      var count;
+
+      $(".odiv").html("");
+
+      $.ajax({
+
+        type: "get",
+
+        url: "http://127.0.0.1:8088/queryAarticle",
+
+        data:objs,
+
+        success: function(data){
+
+          console.log(data,'我是返回数据')
+
+          if(data.code ==200){
+
+            articleData = data.data;
+
+            count = data.count;
+
+            if(data.data.length>0){
+
+              $.each(data.data,function(i,v){
+
+                var ul = "<ul style='width:100%;'>" +
+                  "<li style = 'width: 10%'>"+v.name+"</li>" +
+                  "<li style = 'width: 59.55%;padding: 0 5px;'>"+v.content+"</li>" +
+                  "<li style = 'width: 12%;color: green'>"+v.time+"</li>" +
+                  "<li style = 'width: 15%'>" +
+                  "<span class = 'look' data-index = '"+i+"' data-labelId='"+v.labelid+"' data-articleid='"+v.articleid+"' style = 'margin-right: 10px;cursor: pointer;'>查看</span>"+
+                  "<span class = 'edit' data-index = '"+i+"' data-labelId='"+v.labelid+"' data-articleid='"+v.articleid+"' style='margin-right: 10px;cursor: pointer;'>修改</span>"+
+                  "<span class = 'del' data-index = '"+i+"' data-labelId='"+v.labelid+"' data-articleid='"+v.articleid+"' style = 'cursor: pointer;'>删除</span>"+
+                  "</li>" +
+                  "</ul>"
+                $(".odiv").append(ul)
+              })
+
+            }else{
+
+              $(".odiv").html("<p style = 'text-align: center'><span style='margin-right: 10px'>该标签下没有文章。立即去添加文章</span><span style='cursor: pointer' class = 'go'>let' go</span></p>")
+
+            }
+
+            laypage.render({
+
+              elem: 'demo0'
+
+              ,count: count
+
+              ,layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+
+              ,curr: objs.pageNo || 1 //当前页
+
+              ,limit: objs.pageSize || 10
+
+              ,skip: false
+
+              ,jump: function(obj,first){
+
+                console.log(obj)
+
+                console.log(objs)
+
+                if (!first) { //点击跳页触发函数自身，并传递当前页：obj.curr
+
+                  var datas = {
+
+                    pageSize:obj.limit,
+
+                    pageNo:obj.curr,
+
+                    id:sunData.id
+
+                  }
+
+                  getArticle(datas);
+
+                }
+
+              }
+
+            });
+
+          }
+
+        },
+
+        error:function(err){
+
+          console.log(err)
+
+        }
+
+      });
+
+    })
+
+  }
+
+  window.onload = function(){
+
+    var labelId = window.localStorage.getItem("look_labelId") == null ? window.localStorage.getItem("add_labelId") :
+
+      window.localStorage.getItem("look_labelId")
+
+    console.log(labelId)
+
+    var labelName =window.localStorage.getItem("labelName")
+
+    var labelColor = window.localStorage.getItem("labelColor")
+
+    $(".labelName").html(labelName).css({color:labelColor})
+
+    var obj = {
+
+      pageNo:1,
+
+      pageSize:10,
+
+      id:labelId,
+
+    }
+
+    //下旬列表
+    getArticle(obj,labelId)
+    //点击查看
+    $(".odiv").delegate(".look,.edit","click",function(){
+
+      window.localStorage.setItem("articleObj",JSON.stringify(articleData[$(this).attr("data-index")]))
+
+      window.location.href = "/d"
+
+    })
+    //点击let'go
+    $(".odiv").delegate(".go,.edit","click",function(){
+
+      window.localStorage.setItem("add_labelId",labelId)
+
+      window.location.href = "/d"
+
+    })
+    //点击删除
+    $(".odiv").delegate(".del","click",function(){
+
+      var data = {
+
+        articleid: $(this).attr("data-articleid")
+
+      };
+
+      $.ajax({
+
+        type: "get",
+
+        url: "http://127.0.0.1:8088/delAarticle",
+
+        data: data,
+
+        success: function (data) {
+
+          console.log(data, '我是返回数据')
+
+          if(data.data){
+
+            getArticle(labelId);
+
+          }
+
+        },
+
+        error: function (err) {
+
+          console.log(err)
+
+        }
+
+      })
+
+    })
+
+  }
+
+</script>

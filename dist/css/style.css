@@ -1,0 +1,30 @@
+/*
+* 2018/10/30  lize
+ */
+
+body{
+
+  color: red;
+
+  margin: 0;
+  padding: 0;
+}
+ul li{
+  list-style: none;
+}
+.oul{
+  border: 1px solid gray;
+  overflow: hidden;
+  background: gray;
+}
+.oul li{
+
+  height: 40px;
+  line-height: 40px;
+
+}
+.addArticle,.edit,.del,.look{
+
+  cursor: pointer;
+
+}

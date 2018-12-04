@@ -1,0 +1,382 @@
+<!--
+ -  2018/10/30  lize
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>C</title>
+    <link rel="stylesheet" href="/dist/css/style.css">
+    <link rel="stylesheet" href="http://hanlei.online/Onlineaddress/layui/css/layui.css"  media="all">
+</head>
+<body>
+  <p class = "pd">我是c页面</p>
+  <a style="margin-right: 15px" href="/d">文章新增、修改、查看页</a>
+  <a href="/e">文章列表页</a>
+  <ul class = "oul"></ul>
+  <div id = "demo0"></div>
+
+  <div>
+    <label for="">
+      <span>名称</span>
+      <input type="text" class = "nameInput"/>
+    </label>
+    <label for="">
+      <span>颜色</span>
+      <input type="color" class = "colorInput"/>
+    </label>
+    <button class = "btn">提交</button>
+  </div>
+</body>
+</html>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="http://hanlei.online/Onlineaddress/layui/layui.js" charset="utf-8"></script>
+<script>
+
+  function getJson(fn){
+
+    $.ajax({
+
+      type: "get",
+
+      url: "static/config.json",
+
+      dataType: "json",
+
+      success: function(res){
+
+        if(fn){fn(res)}
+
+      },
+      error:function(er){
+
+        console.log(er);
+
+      }
+
+    })
+
+
+  }
+
+  function getLabel(obj){
+
+    layui.use(['laypage', 'layer'], function() {
+
+      var laypage = layui.laypage
+
+        , layer = layui.layer;
+
+      var count;
+
+      $(".oul").html("");
+
+      $.ajax({
+
+        type: "get",
+
+        url: "http://127.0.0.1:8088/queryLabel",
+
+        data:obj,
+
+        success: function(data){
+
+          console.log(data,'我是返回数据')
+
+          if(data.code ==200){
+
+            count = data.count;
+
+            $.each(data.data,function(i,v){
+
+              var li = "<li style='color:"+v.color+"'>" +
+                "<div style = 'float: left;width:79%'><span style = 'margin-right: 200px;' class = 'title'>"+v.title+"</span></div>" +
+                "<div style = 'float: right;width:13%'><span data-id = '"+v.id+"' data-color = '"+v.color+"' data-title = '"+v.title+"' style = 'margin-left: 10px' class = 'look'>查看</span>"+
+                "<span style = 'margin-left: 10px' data-color = '"+v.color+"' data-title = '"+v.title+"' data-id = '"+v.id+"'  class = 'edit'>修改</span>" +
+                "<span data-id = '"+v.id+"' data-color = '"+v.color+"' data-title = '"+v.title+"' style = 'margin-left: 10px' class = 'addArticle'>新增文章</span>"+
+                "<span data-id = '"+v.id+"' style = 'margin-left: 10px' class = 'del'>删除</span></div>"+
+                "</li>"
+              $(".oul").append(li)
+
+            })
+
+            laypage.render({
+
+                  elem: 'demo0'
+
+                  ,count: count
+
+                  ,layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+
+                  ,curr: obj.pageNo || 1 //当前页
+
+                  ,limit: obj.pageSize || 10
+
+                  ,skip: false
+
+                  ,jump: function(obj,first){
+
+                    console.log(obj)
+
+                    if (!first) { //点击跳页触发函数自身，并传递当前页：obj.curr
+
+                      var datas = {
+
+                        pageSize:obj.limit,
+
+                        pageNo:obj.curr
+
+                      }
+
+                      getLabel(datas);
+
+                    }
+
+                  }
+
+                });
+
+          }
+
+        },
+
+        error:function(err){
+
+          console.log(err)
+
+        }
+
+      });
+
+
+    })
+
+  }
+
+  window.onload = function(){
+
+    var JSONdata = "";
+
+    getJson(function(res){
+
+      JSONdata = res
+
+      console.log(JSONdata)
+
+    });
+
+    var flag = false;
+
+    var objs = {
+
+      pageSize:10,
+
+      pageNo:1
+
+    }
+
+    getLabel(objs);
+
+    //点击提交或修改按钮
+    $(".btn").on("click",function(){
+
+      btnHtml = $(this).html();
+
+        var obj = {
+
+            title:$(".nameInput").val(),
+
+            color:$(".colorInput").val(),
+
+            id:''
+
+        }
+
+        if (btnHtml == "修改"){
+
+          obj.id =$(this).attr("data-id")
+
+        }
+
+        console.log(obj,"我是obj")
+
+      if(obj.title!==''){
+
+        $.ajax({
+
+          type: "post",
+
+          url: "http://127.0.0.1:8088/addLabel",
+
+          data:obj,
+
+          success: function(data){
+
+            console.log(data,'我是返回数据')
+
+            if(data.data){
+
+              var objs = {
+
+                pageSize:10,
+
+                pageNo:1
+
+              }
+
+              getLabel(objs);
+
+              $(".nameInput").val("");
+
+              $(".colorInput").val("");
+
+            }
+
+          },
+
+          error:function(err){
+
+            console.log(err)
+
+          }
+
+        });
+
+      }
+
+    })
+    //点击删除按钮
+    $(".oul").delegate(".del",'click',function(event){
+
+      console.log($(this).attr("data-id"))
+
+      var data = {
+
+        id: $(this).attr("data-id")
+
+      };
+
+      $.ajax({
+
+        type: "get",
+
+        url: "http://127.0.0.1:8088/delLabel",
+
+        data: data,
+
+        success: function (data) {
+
+          console.log(data, '我是返回数据')
+
+          if(data.data ==true){
+
+            var objss = {
+
+              pageSize:10,
+
+              pageNo:1
+
+            }
+
+            getLabel(objss);
+
+          }else if (data.data =="删除失败"){
+
+            alert("该标签下有文章,请先删除该标签下的文章！")
+
+          }
+
+        },
+
+        error: function (err) {
+
+          console.log(err)
+
+        }
+
+      })
+
+    })
+    //点击编辑按钮
+    $(".oul").delegate(".edit",'click',function(event){
+
+      event.stopPropagation();
+
+      $(".btn").html("修改")
+
+      flag = true
+
+      $(".btn").attr("data-id",$(this).attr("data-id"))
+
+      $(".nameInput").val($(this).attr("data-title"))
+
+      $(".colorInput").val($(this).attr("data-color"))
+
+    })
+    //点击名称input
+    $(".nameInput").on('click',function(event){
+
+      event.stopPropagation();
+
+      if(flag){
+
+        $(".btn").html("修改")
+
+      }
+
+    })
+    //点击颜色input
+    $(".colorInput").on('click',function(event){
+
+      event.stopPropagation();
+
+      if(flag){
+
+        $(".btn").html("修改")
+
+      }
+
+    })
+    //点击空白处
+    $(document).on("click",function(){
+
+        $(".btn").html("提交")
+
+        flag = false;
+
+        $(".nameInput").val("")
+
+        $(".colorInput").val("")
+
+
+    })
+    //点击新增
+    $(".oul").delegate(".addArticle","click",function(){
+
+      window.localStorage.setItem("add_labelId",$(this).attr("data-id"))
+
+      window.localStorage.setItem("labelName",$(this).attr("data-title"))
+
+      window.localStorage.setItem("labelColor",$(this).attr("data-color"))
+
+      window.location.href = "/d"
+
+    })
+    //点击查看
+    $(".oul").delegate(".look","click",function(){
+
+      window.localStorage.setItem("look_labelId",$(this).attr("data-id"))
+
+      window.localStorage.setItem("labelName",$(this).attr("data-title"))
+
+      window.localStorage.setItem("labelColor",$(this).attr("data-color"))
+
+      console.log($(this).attr("data-id"))
+
+      window.location.href = "/e"
+
+    })
+
+  }
+
+</script>

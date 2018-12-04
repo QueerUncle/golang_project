@@ -1,0 +1,105 @@
+{
+  "//": "网站名称",
+  "WebTitle": "测试",
+
+  "//": "gtpl 模板存放路径",
+  "TemplateUrl": "/dist",
+
+  "//": " 静态文件模板存放路径",
+  "StaticFilePath": "/www",
+
+  "//": "纯静态网站",
+  "IsAllStatic": 0,
+
+  "//": "网站监听端口",
+  "WebPort": 8088,
+
+  "//": "https服务器设置",
+  "TLS": {
+    "Open": 0,
+    "Domain": "localhost,127.0.0.1",
+    "Email": "kico0909@gmail.com"
+  },
+
+  "//": "MYSQL数据库设置",
+  "Mysql": {
+    "//": "读写分离",
+    "RW": 0,
+
+    "//": "默认数据库",
+    "Default": {
+      "Username": "QuerryUncle",
+      "Password": "lize.3654",
+      "Host": "localhost",
+      "Port": "3306",
+      "Dbname": "QuerryUncle",
+      "Socket": ""
+    },
+
+    "//": "写库",
+    "Write": {
+      "Username": "root",
+      "Password": "",
+      "Host": "127.0.0.1",
+      "Port": "3306",
+      "Dbname": "view",
+      "Socket": "/Applications/MAMP/tmp/mysql/mysql.sock"
+    },
+
+    "//": "读库",
+    "Read": {
+      "Username": "root",
+      "Password": "",
+      "Host": "127.0.0.1",
+      "Port": "3306",
+      "Dbname": "view",
+      "Socket": "/Applications/MAMP/tmp/mysql/mysql.sock"
+    }
+  },
+
+  "//": "redis 数据库设置",
+  "Redis": {
+    "Host": "",
+    "Port": "65432",
+    "Dbname": "1",
+    "Password": ""
+  },
+
+  "//": "session保存类型: memory,redis,mysql,file,cookie( 暂只支持 memory 和 redis )",
+  "SessionType": "memory",
+
+  "//": "Session的名称前缀",
+  "SessionName": "_CBIM",
+
+  "//": "session声生命周期(秒)",
+  "SessionLifeTime": 180,
+
+  "//": "session Redis 设置",
+  "SessionRedis": {
+    "Host": "redis.chunkding.com",
+    "Port": "65432",
+    "Dbname": "10",
+    "Password": ""
+  },
+
+  "//": "CAS服务器,server 为空不启用cas 验证, 白名单可为空",
+  "Cas": {
+    "Server": "https://devcas.cbim.org.cn",
+    "WhiteList": ["/favicon.ico", "/logout","/api/toServer"]
+  },
+
+  "//": "自定义配置文件, 只以字符串体现",
+  "Custom": {
+    "UCserver": "http://work3.cbim.org.cn",
+
+    "WorkServer": "http://work3.cbim.org.cn",
+    "WorkAPIAppid": "7bf66c041b2b28c734c3e5b7534cbb9c",
+    "WorkAPIKey": "b774cfe9fc8776b961a650df3efb2b8d",
+
+    "SettlementServer": "http://120.52.22.163:8080",
+    "SettlementAPIAppid": "7bf66c041b2b28c734c3e5b7534cbb9c",
+    "SettlementAPIKey": "b774cfe9fc8776b961a650df3efb2b8d"
+
+  }
+
+}
